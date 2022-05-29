@@ -1,6 +1,5 @@
 package com.java.coach.controller;
 
-import com.java.coach.model.dto.EmailDetails;
 import com.java.coach.model.dto.QuestionDTO;
 import com.java.coach.service.QuestionService;
 import io.swagger.v3.oas.annotations.Operation;

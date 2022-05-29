@@ -1,36 +1,33 @@
 package com.java.coach.service;
 
-import com.java.coach.model.dto.EmailDetails;
-import com.java.coach.model.repository.ConceptRepository;
+import com.java.coach.model.dto.EmailDTO;
+import com.java.coach.model.entity.Concept;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import javax.mail.internet.InternetAddress;
+
 @Service
-public class EmailSender {
+public class EmailSender{
 
     @Autowired
     private JavaMailSender javaMailSender;
 
     @Autowired
-    private ConceptRepository conceptRepository;
+    private ConceptService conceptService;
 
-    @Value("${spring.mail.username}") private String sender;
-
-
-    public String sendSimpleMail(EmailDetails details){
-        int n = conceptRepository.getTotalConcepts();
-        int numero = (int) (Math.random() * n) + 1;
-        details.setMsgBody(conceptRepository.findById(numero).get().getContenidoConcepto());
+    public String sendSimpleMail(EmailDTO emailDTO) {
         try {
             SimpleMailMessage mailMessage = new SimpleMailMessage();
 
-            mailMessage.setFrom(sender);
-            mailMessage.setTo(details.getRecipient());
-            mailMessage.setText(details.getMsgBody());
-            mailMessage.setSubject(details.getSubject());
+            Concept concept = conceptService.findRandomConcept();
+
+            mailMessage.setFrom("java.coach.v1@gmail.com");
+            mailMessage.setTo(emailDTO.getRecipient());
+            mailMessage.setText(concept.getContenidoConcepto());
+            mailMessage.setSubject(concept.getNombreConcepto());
 
             javaMailSender.send(mailMessage);
             return "Mail Sent Successfully...";

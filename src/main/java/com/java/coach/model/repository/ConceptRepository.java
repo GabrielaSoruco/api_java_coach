@@ -12,6 +12,8 @@ public interface ConceptRepository extends JpaRepository<Concept, Integer> {
     @Query(value = "select c.nombreConcepto from Concept c where c.nombreConcepto like %:nameConcept%")
     String findNameConcept(@Param("nameConcept") String nameConcept);
 
+
     @Query(value = "select count(c.idConcepto) from Concept c")
     Integer getTotalConcepts();
+
 }

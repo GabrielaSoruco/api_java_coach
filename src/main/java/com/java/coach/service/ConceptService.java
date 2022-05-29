@@ -42,4 +42,13 @@ public class ConceptService {
         conceptRepository.deleteById(id);
     }
 
+    public Concept findRandomConcept(){
+        int max = (int) conceptRepository.count();
+        int idRandom = (int) (Math.random() * max + 1);
+        Optional<Concept> concept = conceptRepository.findById(idRandom);
+        if (concept.isPresent()){
+            return concept.get();
+        }
+        throw new IllegalArgumentException("concepto random no encontrado");
+    }
 }

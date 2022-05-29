@@ -1,6 +1,7 @@
 package com.java.coach.controller;
 
-import com.java.coach.model.dto.EmailDetails;
+import com.java.coach.model.dto.EmailDTO;
+import com.java.coach.model.dto.Report;
 import com.java.coach.service.EmailSender;
 import com.java.coach.service.ReportService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.FileNotFoundException;
 
 @RestController
+@RequestMapping("/utils")
 @Tag(name = "Utilidades")
 public class UtilsController {
 
@@ -29,7 +31,7 @@ public class UtilsController {
     @Operation(summary = "Download concept", description = "Download concept in pdf format")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Concept successful downloaded",
-                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = EmailDetails.class))})
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Report.class))})
     })
     @GetMapping(value = "/generar/reporte")
     public ResponseEntity<String> generateReport() throws JRException, FileNotFoundException {
@@ -44,11 +46,11 @@ public class UtilsController {
     @Operation(summary = "Send concept", description = "Send concept via email")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Concept successful sended",
-                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = EmailDetails.class))})
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = EmailDTO.class))})
     })
     @PostMapping("/enviar/consejo")
-    public ResponseEntity<String> sendMail(@RequestBody EmailDetails details) {
-        return ResponseEntity.ok(emailSender.sendSimpleMail(details));
+    public ResponseEntity<String> sendMail(@RequestBody EmailDTO emailDTO) {
+        return ResponseEntity.ok(emailSender.sendSimpleMail(emailDTO));
     }
 
 
