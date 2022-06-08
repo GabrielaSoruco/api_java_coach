@@ -9,14 +9,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping(value = "/concepto")
+@RequestMapping(value = "/v1")
 @Tag(name = "Conceptos")
 public class ConceptController {
 
@@ -36,32 +36,38 @@ public class ConceptController {
         return ResponseEntity.ok(conceptService.findConceptos());
     }
 
+    @Operation(summary = "Get concept", description = "Get concept by id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get a specific concept",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Concept.class))}),
+            @ApiResponse(responseCode = "404", description = "Concept not found by id",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ConceptDTO.class))})
+    })
+    @GetMapping(value = "/conceptos/{id}")
+    public ResponseEntity<Concept> getConceptById(@PathVariable Integer id){
+        return new ResponseEntity<>(conceptService.findById(id), HttpStatus.OK);
+    }
+
     @Operation(summary = "Create concept", description = "Save a new concept")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Concept successful saved",
+            @ApiResponse(responseCode = "201", description = "Concept successful created",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ConceptDTO.class))})
     })
     @PostMapping(value = "/crear")
-    public ResponseEntity createConcept(@RequestBody ConceptDTO conceptDTO){
-        conceptService.saveConcepto(conceptDTO);
-        return ResponseEntity.ok("Successfully created");
+    public ResponseEntity<Concept> createConcept(@RequestBody ConceptDTO conceptDTO){
+        return new ResponseEntity<>(conceptService.saveConcepto(conceptDTO), HttpStatus.CREATED);
     }
 
     @Operation(summary = "Update concept", description = "Update and save some concept")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Concept successful updated",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ConceptDTO.class))}),
-            @ApiResponse(responseCode = "422", description = "Concept not found by id",
+            @ApiResponse(responseCode = "404", description = "Concept not found by id",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ConceptDTO.class))})
     })
     @PutMapping(value = "/actualizar/{id}")
-    public ResponseEntity updateConcept(@PathVariable Integer id, @RequestBody ConceptDTO conceptDTO){
-        Optional<Concept> conceptoOptional = conceptService.findById(id);
-        if(!conceptoOptional.isPresent()){
-            return ResponseEntity.unprocessableEntity().build();
-        }
-        conceptDTO.setIdConcepto(conceptoOptional.get().getIdConcepto());
-        conceptService.saveConcepto(conceptDTO);
+    public ResponseEntity<?> updateConcept(@PathVariable Integer id, @RequestBody ConceptDTO conceptDTO){
+        conceptService.updateConcept(id, conceptDTO);
         return ResponseEntity.noContent().build();
     }
 
@@ -69,15 +75,11 @@ public class ConceptController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Concept successful deleted",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ConceptDTO.class))}),
-            @ApiResponse(responseCode = "422", description = "Concept not found by id",
+            @ApiResponse(responseCode = "404", description = "Concept not found by id",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ConceptDTO.class))})
     })
     @DeleteMapping(value = "/eliminar/{id}")
     public ResponseEntity deleteConcept(@PathVariable("id") Integer id){
-        Optional<Concept> concepto = conceptService.findById(id);
-        if(!concepto.isPresent()){
-            return ResponseEntity.unprocessableEntity().body("Concept not found");
-        }
         conceptService.deleteById(id);
         return ResponseEntity.noContent().build();
     }

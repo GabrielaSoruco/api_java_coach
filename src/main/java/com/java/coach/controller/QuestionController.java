@@ -29,7 +29,7 @@ public class QuestionController {
             @ApiResponse(responseCode = "200", description = "Lista de preguntas",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = QuestionDTO.class))})
     })
-    @GetMapping(value = "/all")
+    @GetMapping(value = "/lista")
     public List<QuestionDTO> readQuestion(){
         return questionService.getQuestions();
     }

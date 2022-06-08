@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import net.sf.jasperreports.engine.JRException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,7 +34,7 @@ public class UtilsController {
             @ApiResponse(responseCode = "200", description = "Concept successful downloaded",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Report.class))})
     })
-    @GetMapping(value = "/generar/reporte")
+    @GetMapping(value = "/generar/reporte", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<String> generateReport() throws JRException, FileNotFoundException {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "inline; filename=javaCoachReport.pdf");
@@ -52,6 +53,4 @@ public class UtilsController {
     public ResponseEntity<String> sendMail(@RequestBody EmailDTO emailDTO) {
         return ResponseEntity.ok(emailSender.sendSimpleMail(emailDTO));
     }
-
-
 }

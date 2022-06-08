@@ -1,23 +1,24 @@
 package com.java.coach.service;
 
+import com.java.coach.exception.ResourceNotFoundException;
 import com.java.coach.model.dto.ConceptDTO;
 import com.java.coach.model.entity.Concept;
 import com.java.coach.model.repository.ConceptRepository;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ConceptService {
-
-    @Autowired
-    ConceptRepository conceptRepository;
+    final ConceptRepository conceptRepository;
 
     ModelMapper modelMapper = new ModelMapper();
+
+    public ConceptService(ConceptRepository conceptRepository) {
+        this.conceptRepository = conceptRepository;
+    }
 
     public List<ConceptDTO> findConceptos(){
         List<ConceptDTO> conceptsDTO = new ArrayList<>();
@@ -29,13 +30,22 @@ public class ConceptService {
         return conceptsDTO;
     }
 
-    public void saveConcepto(ConceptDTO conceptoDTO){
+    public Concept saveConcepto(ConceptDTO conceptoDTO){
         Concept concepto = modelMapper.map(conceptoDTO, Concept.class);
-        conceptRepository.save(concepto);
+        return conceptRepository.save(concepto);
     }
 
-    public Optional<Concept> findById(Integer id){
-        return conceptRepository.findById(id);
+    public Concept findById(Integer id){
+        return conceptRepository.findById(id)
+                .orElseThrow(()->new ResourceNotFoundException("Concepto no encontrado con id: " +id));
+    }
+
+    public void updateConcept(Integer id, ConceptDTO conceptDTO){
+        Concept conceptRepo = conceptRepository.findById(id)
+                .orElseThrow(()-> new ResourceNotFoundException("No existe concepto con id: "+id));
+        Concept concept = modelMapper.map(conceptDTO, Concept.class);
+        concept.setIdConcepto(conceptRepo.getIdConcepto());
+        conceptRepository.save(concept);
     }
 
     public void deleteById(Integer id){
@@ -45,10 +55,6 @@ public class ConceptService {
     public Concept findRandomConcept(){
         int max = (int) conceptRepository.count();
         int idRandom = (int) (Math.random() * max + 1);
-        Optional<Concept> concept = conceptRepository.findById(idRandom);
-        if (concept.isPresent()){
-            return concept.get();
-        }
-        throw new IllegalArgumentException("concepto random no encontrado");
+            return conceptRepository.findById(idRandom).get();
     }
 }
